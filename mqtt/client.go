@@ -23,6 +23,8 @@ func InitMQTTClient(cfg *config.Config, handler mqtt.MessageHandler) mqtt.Client
 		log.Fatalf("Failed to connect to MQTT broker: %v", token.Error())
 	}
 
+	log.Print("Connected to MQTT broker")
+
 	return client
 }
 
