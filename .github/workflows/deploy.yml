@@ -1,0 +1,45 @@
+name: Build Debian Package
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.20'
+
+      - name: Cross-compile Go for Raspberry Pi
+        run: |
+          GOOS=linux GOARCH=arm GOARM=7 go build -o myprogram
+
+      - name: Create Debian Package Structure
+        run: |
+          mkdir -p myprogram/DEBIAN
+          echo "Package: myprogram" >> myprogram/DEBIAN/control
+          echo "Version: 1.0.0" >> myprogram/DEBIAN/control
+          echo "Architecture: armhf" >> myprogram/DEBIAN/control
+          echo "Maintainer: Your Name <youremail@example.com>" >> myprogram/DEBIAN/control
+          echo "Description: My Go program for Raspberry Pi" >> myprogram/DEBIAN/control
+          
+          mkdir -p myprogram/usr/local/bin
+          mv myprogram myprogram/usr/local/bin/
+
+      - name: Build the .deb package
+        run: |
+          dpkg-deb --build myprogram
+
+      - name: Upload the .deb package as an artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: myprogram.deb
+          path: ./myprogram.deb
