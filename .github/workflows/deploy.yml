@@ -20,26 +20,28 @@ jobs:
 
       - name: Cross-compile Go for Raspberry Pi
         run: |
-          GOOS=linux GOARCH=arm GOARM=7 go build -o myprogram
+          GOOS=linux GOARCH=arm GOARM=7 go build -o myprogram-bin
 
       - name: Create Debian Package Structure
         run: |
-          mkdir -p myprogram/DEBIAN
-          echo "Package: myprogram" >> myprogram/DEBIAN/control
-          echo "Version: 1.0.0" >> myprogram/DEBIAN/control
-          echo "Architecture: armhf" >> myprogram/DEBIAN/control
-          echo "Maintainer: Your Name <youremail@example.com>" >> myprogram/DEBIAN/control
-          echo "Description: My Go program for Raspberry Pi" >> myprogram/DEBIAN/control
+          # Create the folder structure
+          mkdir -p myprogram-deb/DEBIAN
+          echo "Package: myprogram" >> myprogram-deb/DEBIAN/control
+          echo "Version: 1.0.0" >> myprogram-deb/DEBIAN/control
+          echo "Architecture: armhf" >> myprogram-deb/DEBIAN/control
+          echo "Maintainer: Your Name <youremail@example.com>" >> myprogram-deb/DEBIAN/control
+          echo "Description: My Go program for Raspberry Pi" >> myprogram-deb/DEBIAN/control
           
-          mkdir -p myprogram/usr/local/bin
-          mv myprogram myprogram/usr/local/bin/
+          # Move the compiled binary to the correct folder in the package
+          mkdir -p myprogram-deb/usr/local/bin
+          mv myprogram-bin myprogram-deb/usr/local/bin/myprogram
 
       - name: Build the .deb package
         run: |
-          dpkg-deb --build myprogram
+          dpkg-deb --build myprogram-deb
 
       - name: Upload the .deb package as an artifact
         uses: actions/upload-artifact@v3
         with:
           name: myprogram.deb
-          path: ./myprogram.deb
+          path: ./myprogram-deb.deb
