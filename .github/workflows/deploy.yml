@@ -41,7 +41,7 @@ jobs:
           dpkg-deb --build myprogram-deb
 
       - name: Upload the .deb package as an artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: myprogram.deb
           path: ./myprogram-deb.deb
