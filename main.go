@@ -11,6 +11,7 @@ import (
 )
 
 func main() {
+	log.Print("Starting")
 	// Load configuration
 	cfg := config.LoadConfig()
 
