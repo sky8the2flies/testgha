@@ -30,7 +30,7 @@ func InitMQTTClient(cfg *config.Config, handler mqtt.MessageHandler) mqtt.Client
 
 // SubscribeToTemperature subscribes to the Zigbee2MQTT topic for temperature data
 func SubscribeToTemperature(client mqtt.Client) {
-	topic := "zigbee2mqtt/+/temperature"
+	topic := "zigbee2mqtt/+"
 	token := client.Subscribe(topic, 0, func(c mqtt.Client, m mqtt.Message) {
 		log.Printf("message recieved %s: %+v", m.Topic(), m.Payload())
 	})
