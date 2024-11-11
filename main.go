@@ -38,15 +38,9 @@ func main() {
 		}
 
 		if n > 0 {
-			// Print received data as hex to analyze structure
-			fmt.Print("Received data (hex): ")
-			for i := 0; i < n; i++ {
-				fmt.Printf("%02X ", buffer[i])
-			}
-			fmt.Println()
-
-			// Parse the data if possible
-			parseZigbeeMessage(buffer[:n])
+			// Convert the buffer to a string and print it
+			dataStr := string(buffer[:n])
+			fmt.Println("Received data:", dataStr)
 		}
 	}
 }
