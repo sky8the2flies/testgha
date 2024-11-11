@@ -1,6 +1,7 @@
 package mqtt
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"strings"
@@ -32,7 +33,20 @@ func InitMQTTClient(cfg *config.Config, handler mqtt.MessageHandler) mqtt.Client
 func SubscribeToTemperature(client mqtt.Client) {
 	topic := "zigbee2mqtt/+"
 	token := client.Subscribe(topic, 0, func(c mqtt.Client, m mqtt.Message) {
-		log.Printf("message recieved %s: %+v", m.Topic(), m.Payload())
+		type Payload struct {
+			Battery     float32 `json:"battery"`
+			Humidity    float32 `json:"humidity"`
+			LinkQuality float32 `json:"linkquality"`
+			Temperature float32 `json:"temperature"`
+			Voltage     float32 `json:"voltage"`
+		}
+		var p Payload
+		err := json.Unmarshal(m.Payload(), &p)
+		if err != nil {
+			log.Fatalf("Failed to unmmarshal payload err: %+v", err)
+			return
+		}
+		log.Printf("message recieved %s: %+v", m.Topic(), p)
 	})
 	if token.Wait() && token.Error() != nil {
 		log.Fatalf("Failed to subscribe to topic %s: %v", topic, token.Error())
