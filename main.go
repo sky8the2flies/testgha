@@ -27,22 +27,49 @@ func main() {
 	defer port.Close()
 
 	// Buffer for reading data
-	buffer := make([]byte, 128)
+	readBuffer := make([]byte, 128)
+	messageBuffer := []byte{}
 
 	fmt.Println("Reading from serial port...")
 	for {
-		n, err := port.Read(buffer)
+		n, err := port.Read(readBuffer)
 		if err != nil {
 			log.Printf("Error reading from serial port: %v", err)
 			continue
 		}
 
 		if n > 0 {
-			payload := buffer[:n]
-			fmt.Println("Raw Data:", buffer[:n])
+			// Append new data to the message buffer
+			messageBuffer = append(messageBuffer, readBuffer[:n]...)
 
-			crc0, crc1 := CalculateChecksum(payload)
-			fmt.Println("Checksum: ", crc0, crc1)
+			// Check for start and end delimiters (192) to identify a complete message
+			startIndex := -1
+			endIndex := -1
+
+			for i, b := range messageBuffer {
+				if b == 192 {
+					if startIndex == -1 {
+						startIndex = i
+					} else {
+						endIndex = i
+						break
+					}
+				}
+			}
+
+			// If we found a complete message (from start to end delimiter)
+			if startIndex != -1 && endIndex != -1 && endIndex > startIndex {
+				// Extract the complete message
+				payload := messageBuffer[startIndex+1 : endIndex]
+
+				// Calculate checksum for the payload
+				crc0, crc1 := CalculateChecksum(payload)
+				fmt.Println("Raw Data:", payload)
+				fmt.Println("Checksum: ", crc0, crc1)
+
+				// Remove the processed message from the buffer
+				messageBuffer = messageBuffer[endIndex+1:]
+			}
 		}
 	}
 }
