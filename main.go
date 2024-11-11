@@ -39,8 +39,7 @@ func main() {
 
 		if n > 0 {
 			// Convert the buffer to a string and print it
-			dataStr := string(buffer[:n])
-			fmt.Println("Received data:", dataStr)
+			fmt.Printf("Received data: %v", buffer[:n])
 		}
 	}
 }
