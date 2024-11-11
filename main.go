@@ -38,13 +38,30 @@ func main() {
 		}
 
 		if n > 0 {
-			// Convert the buffer to a readable data structure
+			payload := buffer[:n]
 			fmt.Println("Raw Data:", buffer[:n])
 
-			// Parse each message within the buffer based on the delimiter (192)
-			parseZigbeeMessage(buffer[:n])
+			crc0, crc1 := CalculateChecksum(payload)
+			fmt.Println("Checksum: ", crc0, crc1)
 		}
 	}
+}
+
+// CalculateChecksum computes the 16-bit checksum for the given payload
+func CalculateChecksum(payload []byte) (uint8, uint8) {
+	var crc uint16 = 0
+
+	// Sum each byte in the payload
+	for _, b := range payload {
+		crc += uint16(b)
+	}
+
+	// Two's complement and split into two bytes
+	crc = ^crc + 1
+	crc0 := uint8(crc & 0xFF)        // Lower byte
+	crc1 := uint8((crc >> 8) & 0xFF) // Upper byte
+
+	return crc0, crc1
 }
 
 // Parsing function for Zigbee message structure
