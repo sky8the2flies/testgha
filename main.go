@@ -60,7 +60,7 @@ func main() {
 			// If we found a complete message (from start to end delimiter)
 			if startIndex != -1 && endIndex != -1 && endIndex > startIndex {
 				// Extract the complete message
-				payload := messageBuffer[startIndex+1 : endIndex]
+				payload := messageBuffer[startIndex:endIndex]
 
 				fmt.Println("Raw Data:", payload)
 
