@@ -38,8 +38,10 @@ func main() {
 		}
 
 		if n > 0 {
-			// Print received data
-			fmt.Printf("Received data: %s\n", buffer[:n])
+			fmt.Print("Received data (hex): ")
+			for i := 0; i < n; i++ {
+				fmt.Printf("%02X ", buffer[i])
+			}
 		}
 	}
 }
