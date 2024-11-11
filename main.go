@@ -11,11 +11,11 @@ import (
 func main() {
 	// Configure serial connection settings
 	config := &serial.Config{
-		Name: "/dev/ttyAMA0",
-		Baud: 38400,
-		// Size:        8,
-		// StopBits:    serial.Stop1,
-		// Parity:      serial.ParityNone,
+		Name:        "/dev/ttyAMA0",
+		Baud:        38400,
+		Size:        8,
+		StopBits:    serial.Stop1,
+		Parity:      serial.ParityNone,
 		ReadTimeout: time.Second * 5,
 	}
 
@@ -38,12 +38,42 @@ func main() {
 		}
 
 		if n > 0 {
+			// Print received data as hex to analyze structure
 			fmt.Print("Received data (hex): ")
 			for i := 0; i < n; i++ {
 				fmt.Printf("%02X ", buffer[i])
 			}
+			fmt.Println()
+
+			// Parse the data if possible
+			parseZigbeeMessage(buffer[:n])
 		}
 	}
+}
+
+// Sample parsing function for Zigbee message structure
+func parseZigbeeMessage(data []byte) {
+	// This is just a placeholder example for parsing
+	// Actual parsing will depend on the structure of the data from RaspBee II
+
+	if len(data) < 8 {
+		fmt.Println("Invalid message length")
+		return
+	}
+
+	// Assuming a hypothetical structure: header, message type, device ID, payload, footer
+	header := data[0]
+	messageType := data[1]
+	deviceID := data[2]
+	payload := data[3 : len(data)-1]
+	footer := data[len(data)-1]
+
+	fmt.Printf("Parsed Message:\n")
+	fmt.Printf("  Header: %02X\n", header)
+	fmt.Printf("  Message Type: %02X\n", messageType)
+	fmt.Printf("  Device ID: %02X\n", deviceID)
+	fmt.Printf("  Payload: % X\n", payload)
+	fmt.Printf("  Footer: %02X\n", footer)
 }
 
 // package main
