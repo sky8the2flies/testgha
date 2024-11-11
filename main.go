@@ -38,35 +38,37 @@ func main() {
 		}
 
 		if n > 0 {
-			// Convert the buffer to a string and print it
-			fmt.Printf("Received data: %v\n", buffer[:n])
+			// Convert the buffer to a readable data structure
+			fmt.Println("Raw Data:", buffer[:n])
+
+			// Parse each message within the buffer based on the delimiter (192)
+			parseZigbeeMessage(buffer[:n])
 		}
 	}
 }
 
-// Sample parsing function for Zigbee message structure
+// Parsing function for Zigbee message structure
 func parseZigbeeMessage(data []byte) {
-	// This is just a placeholder example for parsing
-	// Actual parsing will depend on the structure of the data from RaspBee II
-
-	if len(data) < 8 {
-		fmt.Println("Invalid message length")
+	if len(data) < 3 || data[0] != 192 || data[len(data)-1] != 192 {
+		fmt.Println("Invalid message format")
 		return
 	}
 
-	// Assuming a hypothetical structure: header, message type, device ID, payload, footer
-	header := data[0]
-	messageType := data[1]
-	deviceID := data[2]
-	payload := data[3 : len(data)-1]
-	footer := data[len(data)-1]
+	// Extract fields based on observed pattern
+	startByte := data[0]
+	endByte := data[len(data)-1]
 
+	messageType := data[1]           // 2nd byte, possible message type or command
+	deviceID := data[2]              // 3rd byte, could be device identifier
+	payload := data[3 : len(data)-1] // Remaining data except start and end bytes
+
+	// Interpret payload as fields or a single integer (depends on message format)
 	fmt.Printf("Parsed Message:\n")
-	fmt.Printf("  Header: %02X\n", header)
+	fmt.Printf("  Start Byte: %02X\n", startByte)
 	fmt.Printf("  Message Type: %02X\n", messageType)
 	fmt.Printf("  Device ID: %02X\n", deviceID)
-	fmt.Printf("  Payload: % X\n", payload)
-	fmt.Printf("  Footer: %02X\n", footer)
+	fmt.Printf("  Payload: %v\n", payload)
+	fmt.Printf("  End Byte: %02X\n\n", endByte)
 }
 
 // package main
