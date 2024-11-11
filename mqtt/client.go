@@ -12,6 +12,8 @@ import (
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 )
 
+var msgCount = 0
+
 // InitMQTTClient initializes and connects to the MQTT broker
 func InitMQTTClient(cfg *config.Config, handler mqtt.MessageHandler) mqtt.Client {
 	opts := mqtt.NewClientOptions()
@@ -31,6 +33,7 @@ func InitMQTTClient(cfg *config.Config, handler mqtt.MessageHandler) mqtt.Client
 
 // SubscribeToTemperature subscribes to the Zigbee2MQTT topic for temperature data
 func SubscribeToTemperature(client mqtt.Client) {
+	msgCount++
 	topic := "zigbee2mqtt/+"
 	token := client.Subscribe(topic, 0, func(c mqtt.Client, m mqtt.Message) {
 		type Payload struct {
@@ -46,7 +49,7 @@ func SubscribeToTemperature(client mqtt.Client) {
 			log.Fatalf("Failed to unmmarshal payload err: %+v", err)
 			return
 		}
-		log.Printf("message recieved %s: %+v", m.Topic(), p)
+		log.Printf("(%d) message recieved %s: %+v", msgCount, m.Topic(), p)
 	})
 	if token.Wait() && token.Error() != nil {
 		log.Fatalf("Failed to subscribe to topic %s: %v", topic, token.Error())
