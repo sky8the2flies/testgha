@@ -13,10 +13,7 @@ func main() {
 	config := &serial.Config{
 		Name:        "/dev/ttyAMA0",
 		Baud:        38400,
-		Size:        8,
-		StopBits:    serial.Stop1,
-		Parity:      serial.ParityNone,
-		ReadTimeout: time.Second * 5,
+		ReadTimeout: time.Second,
 	}
 
 	// Open serial port
