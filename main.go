@@ -1,107 +1,9 @@
-// package main
-
-// import (
-// 	"bytes"
-// 	"encoding/json"
-// 	"fmt"
-// 	"io/ioutil"
-// 	"log"
-// 	"net/http"
-// )
-
-// // Configure these based on your setup
-// const (
-// 	apiBaseURL = "http://localhost:8080/api" // Replace with your deCONZ API URL
-// 	apiKey     = "YOUR_API_KEY_HERE"         // Replace with your deCONZ API Key
-// )
-
-// // Light represents a light in the deCONZ system
-// type Light struct {
-// 	Name  string `json:"name"`
-// 	Type  string `json:"type"`
-// 	State struct {
-// 		On bool `json:"on"`
-// 	} `json:"state"`
-// }
-
-// // FetchLights fetches a list of lights from deCONZ
-// func FetchLights() (map[string]Light, error) {
-// 	url := fmt.Sprintf("%s/%s/temperature", apiBaseURL, apiKey)
-// 	resp, err := http.Get(url)
-// 	if err != nil {
-// 		return nil, fmt.Errorf("error fetching lights: %w", err)
-// 	}
-// 	defer resp.Body.Close()
-
-// 	body, err := ioutil.ReadAll(resp.Body)
-// 	if err != nil {
-// 		return nil, fmt.Errorf("error reading response body: %w", err)
-// 	}
-
-// 	lights := make(map[string]Light)
-// 	if err := json.Unmarshal(body, &lights); err != nil {
-// 		return nil, fmt.Errorf("error unmarshalling lights: %w", err)
-// 	}
-
-// 	return lights, nil
-// }
-
-// // ToggleLight toggles the state of a specific light
-// func ToggleLight(lightID string, on bool) error {
-// 	url := fmt.Sprintf("%s/%s/lights/%s/state", apiBaseURL, apiKey, lightID)
-// 	data := map[string]bool{"on": on}
-// 	payload, err := json.Marshal(data)
-// 	if err != nil {
-// 		return fmt.Errorf("error marshalling toggle data: %w", err)
-// 	}
-
-// 	req, err := http.NewRequest(http.MethodPut, url, bytes.NewBuffer(payload))
-// 	if err != nil {
-// 		return fmt.Errorf("error toggling light: %w", err)
-// 	}
-
-// 	req.Header.Set("Content-Type", "application/json")
-// 	client := &http.Client{}
-// 	resp, err := client.Do(req)
-// 	if err != nil {
-// 		return fmt.Errorf("error toggling light: %w", err)
-// 	}
-// 	defer resp.Body.Close()
-
-// 	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusNoContent {
-// 		body, _ := ioutil.ReadAll(resp.Body)
-// 		return fmt.Errorf("error toggling light, status: %s, response: %s", resp.Status, string(body))
-// 	}
-
-// 	return nil
-// }
-
-// func main() {
-// 	// Fetch and display lights
-// 	lights, err := FetchLights()
-// 	if err != nil {
-// 		log.Fatalf("Failed to fetch lights: %v", err)
-// 	}
-
-// 	for id, light := range lights {
-// 		fmt.Printf("Light ID: %s, Name: %s, Type: %s, State: %t\n", id, light.Name, light.Type, light.State.On)
-// 	}
-
-// 	// Example: Toggle the first light found
-// 	for id, light := range lights {
-// 		fmt.Printf("Toggling light %s (%s)...\n", id, light.Name)
-// 		newState := !light.State.On
-// 		if err := ToggleLight(id, newState); err != nil {
-// 			log.Fatalf("Failed to toggle light %s: %v", id, err)
-// 		}
-// 		fmt.Printf("Light %s is now set to %t\n", id, newState)
-// 		break
-// 	}
-// }
-
 package main
 
 import (
+	"bytes"
+	"encoding/binary"
+	"errors"
 	"fmt"
 	"log"
 	"time"
@@ -204,38 +106,57 @@ func parseZigbeeMessage(data []byte) {
 	fmt.Printf("  End Byte: 0x%02X\n\n", endByte)
 }
 
-// package main
+// FrameHeader represents the structure of a deCONZ frame header.
+type FrameHeader struct {
+	Length    uint16
+	FrameType byte
+	CommandID byte
+	Sequence  byte
+}
 
-// import (
-// 	"log"
-// 	"os"
-// 	"os/signal"
-// 	"swift-hub-app/api"
-// 	"swift-hub-app/config"
-// 	"swift-hub-app/mqtt"
-// 	"syscall"
-// )
+// Frame represents the full deCONZ frame.
+type Frame struct {
+	Header  FrameHeader
+	Payload []byte
+}
 
-// func main() {
-// 	log.Print("Starting")
-// 	// Load configuration
-// 	cfg := config.LoadConfig()
+// ParseFrameHeader parses the deCONZ frame header.
+func ParseFrameHeader(data []byte) (FrameHeader, error) {
+	if len(data) < 5 {
+		return FrameHeader{}, errors.New("data too short for frame header")
+	}
 
-// 	// Initialize API client
-// 	apiClient := api.NewClient(cfg)
+	reader := bytes.NewReader(data)
+	var header FrameHeader
+	if err := binary.Read(reader, binary.LittleEndian, &header.Length); err != nil {
+		return FrameHeader{}, err
+	}
 
-// 	// Initialize MQTT client
-// 	mqttClient := mqtt.InitMQTTClient(cfg, mqtt.MessageHandler(apiClient))
+	header.FrameType, _ = reader.ReadByte()
+	header.CommandID, _ = reader.ReadByte()
+	header.Sequence, _ = reader.ReadByte()
 
-// 	// Subscribe to temperature topics
-// 	mqtt.SubscribeToTemperature(mqttClient)
+	return header, nil
+}
 
-// 	// Set up signal handling for graceful shutdown
-// 	sigs := make(chan os.Signal, 1)
-// 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+// ParseFrame parses the entire deCONZ frame.
+func ParseFrame(data []byte) (*Frame, error) {
+	if len(data) < 5 {
+		return nil, errors.New("data too short for frame")
+	}
 
-// 	<-sigs // Wait for termination signal
+	header, err := ParseFrameHeader(data)
+	if err != nil {
+		return nil, err
+	}
 
-// 	log.Println("Shutting down...")
-// 	mqttClient.Disconnect(250)
-// }
+	if len(data) < int(header.Length) {
+		return nil, errors.New("data length mismatch")
+	}
+
+	payload := data[5:header.Length]
+	return &Frame{
+		Header:  header,
+		Payload: payload,
+	}, nil
+}
