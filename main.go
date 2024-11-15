@@ -160,7 +160,7 @@ func main() {
 				// Extract the complete message
 				payload := messageBuffer[startIndex : endIndex+1]
 
-				fmt.Print("Raw Data:")
+				fmt.Print("Raw Data:\n")
 				for i, b := range payload {
 					fmt.Printf(" %d: 0x%02X\n", i, b)
 				}
