@@ -129,7 +129,9 @@ func main() {
 	for {
 		scanner := bufio.NewScanner(port)
 		for scanner.Scan() {
-			fmt.Println("Raw Data:", scanner.Bytes()) // Println will add back the final '\n'
+			for _, b := range scanner.Bytes() {
+				fmt.Printf("%02X ", b)
+			}
 		}
 		if err := scanner.Err(); err != nil {
 			log.Fatal(err)
