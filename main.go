@@ -183,11 +183,11 @@ func parseZigbeeMessage(data []byte) {
 
 	// Interpret payload as fields or a single integer (depends on message format)
 	fmt.Printf("Parsed Message:\n")
-	fmt.Printf("  Start Byte: %02X\n", startByte)
-	fmt.Printf("  Message Type: %02X\n", messageType)
-	fmt.Printf("  Device ID: %02X\n", deviceID)
+	fmt.Printf("  Start Byte: 0x%02X\n", startByte)
+	fmt.Printf("  Message Type: 0x%02X\n", messageType)
+	fmt.Printf("  Device ID: 0x%02X\n", deviceID)
 	fmt.Printf("  Payload: %v\n", payload)
-	fmt.Printf("  End Byte: %02X\n\n", endByte)
+	fmt.Printf("  End Byte: 0x%02X\n\n", endByte)
 }
 
 // package main
