@@ -129,7 +129,7 @@ func main() {
 	for {
 		scanner := bufio.NewScanner(port)
 		if scanner.Scan() {
-			fmt.Println(scanner.Text()) // Println will add back the final '\n'
+			fmt.Println(scanner.Bytes()) // Println will add back the final '\n'
 		}
 		if err := scanner.Err(); err != nil {
 			log.Fatal(err)
