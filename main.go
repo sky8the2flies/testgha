@@ -28,7 +28,7 @@ func main() {
 
 	// Buffer for reading data
 	readBuffer := make([]byte, 128)
-	// messageBuffer := []byte{}
+	messageBuffer := []byte{}
 
 	fmt.Println("Reading from serial port...")
 
@@ -40,81 +40,49 @@ func main() {
 		}
 
 		if n > 0 {
-			log.Printf("Read %d bytes: %X\n", n, readBuffer[:n])
-			frame, err := ParseFrame(readBuffer[:n])
-			if err != nil {
-				fmt.Println("Error parsing frame:", err)
-				return
+			// Append new data to the message buffer
+			messageBuffer = append(messageBuffer, readBuffer[:n]...)
+
+			// Check for start and end delimiters (192) to identify a complete message
+			startIndex := -1
+			endIndex := -1
+
+			for i, b := range messageBuffer {
+				if b == 192 {
+					if startIndex == -1 {
+						startIndex = i
+					} else {
+						endIndex = i
+						break
+					}
+				}
 			}
 
-			fmt.Printf("Parsed Frame:\nHeader: %+v\nPayload: %X\n", frame.Header, frame.Payload)
-			// // Append new data to the message buffer
-			// messageBuffer = append(messageBuffer, readBuffer[:n]...)
+			// If we found a complete message (from start to end delimiter)
+			if startIndex != -1 && endIndex != -1 && endIndex > startIndex {
+				// Extract the complete message
+				payload := messageBuffer[startIndex : endIndex+1]
 
-			// // Check for start and end delimiters (192) to identify a complete message
-			// startIndex := -1
-			// endIndex := -1
+				fmt.Print("Raw Data:\n")
+				for i, b := range payload {
+					fmt.Printf(" %01d: %#x - %08b\n", i, b, b)
+				}
 
-			// for i, b := range messageBuffer {
-			// 	if b == 192 {
-			// 		if startIndex == -1 {
-			// 			startIndex = i
-			// 		} else {
-			// 			endIndex = i
-			// 			break
-			// 		}
-			// 	}
-			// }
+				frame, err := ParseFrame(payload)
+				if err != nil {
+					fmt.Println("Error parsing frame:", err)
+					return
+				}
 
-			// // If we found a complete message (from start to end delimiter)
-			// if startIndex != -1 && endIndex != -1 && endIndex > startIndex {
-			// 	// Extract the complete message
-			// 	payload := messageBuffer[startIndex : endIndex+1]
+				fmt.Printf("Parsed Frame:\nHeader: %+v\nPayload: %X\n", frame.Header, frame.Payload)
 
-			// 	// fmt.Print("Raw Data:\n")
-			// 	// for i, b := range payload {
-			// 	// 	fmt.Printf(" %01d: %#x - %08b\n", i, b, b)
-			// 	// }
+				// parseZigbeeMessage(payload)
 
-			// 	// payload = []byte{0x0A, 0x00, 0x01, 0x02, 0x03, 0xAA, 0xBB, 0xCC}
-
-			// 	frame, err := ParseFrame(payload)
-			// 	if err != nil {
-			// 		fmt.Println("Error parsing frame:", err)
-			// 		return
-			// 	}
-
-			// 	fmt.Printf("Parsed Frame:\nHeader: %+v\nPayload: %X\n", frame.Header, frame.Payload)
-
-			// 	// parseZigbeeMessage(payload)
-
-			// 	// Remove the processed message from the buffer
-			// 	messageBuffer = messageBuffer[endIndex+1:]
-			// }
+				// Remove the processed message from the buffer
+				messageBuffer = messageBuffer[endIndex+1:]
+			}
 		}
 	}
-}
-
-// Parsing function for Zigbee message structure
-func parseZigbeeMessage(data []byte) {
-	// Extract fields based on observed pattern
-	startByte := data[0]
-	endByte := data[len(data)-1]
-
-	messageType := data[1]           // 2nd byte, possible message type or command
-	deviceID := data[2]              // 3rd byte, could be device identifier
-	payload := data[3 : len(data)-1] // Remaining data except start and end bytes
-
-	// Interpret payload as fields or a single integer (depends on message format)
-	fmt.Printf("Parsed Message:\n")
-	fmt.Printf("  Start Byte: 0x%02X\n", startByte)
-	fmt.Printf("  Message Type: 0x%02X\n", messageType)
-	fmt.Printf("  Device ID: 0x%02X\n", deviceID)
-	fmt.Print("  Payload:\n")
-	for i, b := range payload {
-		fmt.Printf("    Byte %d: 0x%02X", i, b)
-	}
-	fmt.Printf("  End Byte: 0x%02X\n\n", endByte)
 }
 
 // FrameHeader represents the structure of a deCONZ frame header.
