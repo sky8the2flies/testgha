@@ -67,7 +67,7 @@ func main() {
 				// 	fmt.Printf(" %01d: %#x - %08b\n", i, b, b)
 				// }
 
-				payload = []byte{0x0A, 0x00, 0x01, 0x02, 0x03, 0xAA, 0xBB, 0xCC}
+				// payload = []byte{0x0A, 0x00, 0x01, 0x02, 0x03, 0xAA, 0xBB, 0xCC}
 
 				frame, err := ParseFrame(payload)
 				if err != nil {
@@ -130,7 +130,7 @@ func ParseFrameHeader(data []byte) (FrameHeader, error) {
 
 	reader := bytes.NewReader(data)
 	var header FrameHeader
-	if err := binary.Read(reader, binary.LittleEndian, &header.Length); err != nil {
+	if err := binary.Read(reader, binary.BigEndian, &header.Length); err != nil {
 		return FrameHeader{}, err
 	}
 
