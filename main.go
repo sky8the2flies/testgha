@@ -162,7 +162,7 @@ func main() {
 
 				fmt.Print("Raw Data:\n")
 				for i, b := range payload {
-					fmt.Printf(" %d: 0x%02X\n", i, b)
+					fmt.Printf(" %d: 0x%02X - %08b\n", i, b, b)
 				}
 
 				// parseZigbeeMessage(payload)
