@@ -163,7 +163,7 @@ func ParseFrame(data []byte) (*Frame, error) {
 
 	log.Printf("Parsed Frame Header: %+v\n", header)
 
-	if len(data) < int(header.Length) {
+	if len(data) <= int(header.Length) {
 		return nil, errors.New("data length mismatch")
 	}
 
