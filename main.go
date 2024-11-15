@@ -131,12 +131,12 @@ type Frame struct {
 }
 
 // ParseFrameHeader parses the deCONZ frame header.
-func ParseFrameHeader(data []byte) (FrameHeader, error) {
-	if len(data) < 5 {
-		return FrameHeader{}, errors.New("data too short for frame header")
+func ParseFrameHeader(frame []byte) (FrameHeader, error) {
+	if len(frame) < 3 {
+		return FrameHeader{}, errors.New("frame too short for frame header")
 	}
 
-	reader := bytes.NewReader(data)
+	reader := bytes.NewReader(frame)
 	var header FrameHeader
 	if err := binary.Read(reader, binary.LittleEndian, &header.Length); err != nil {
 		return FrameHeader{}, err
