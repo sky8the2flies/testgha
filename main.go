@@ -160,10 +160,18 @@ func main() {
 				// Extract the complete message
 				payload := messageBuffer[startIndex : endIndex+1]
 
-				fmt.Print("Raw Data:\n")
-				for i, b := range payload {
-					fmt.Printf(" %01d: %#x - %08b\n", i, b, b)
+				// fmt.Print("Raw Data:\n")
+				// for i, b := range payload {
+				// 	fmt.Printf(" %01d: %#x - %08b\n", i, b, b)
+				// }
+
+				frame, err := ParseFrame(payload)
+				if err != nil {
+					fmt.Println("Error parsing frame:", err)
+					return
 				}
+
+				fmt.Printf("Parsed Frame:\nHeader: %+v\nPayload: %X\n", frame.Header, frame.Payload)
 
 				// parseZigbeeMessage(payload)
 
