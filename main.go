@@ -127,6 +127,7 @@ func main() {
 
 	scanner := bufio.NewScanner(port)
 	for {
+		log.Printf("Reading from serial port...")
 		if scanner.Scan() {
 			fmt.Println(scanner.Text()) // Println will add back the final '\n'
 		}
