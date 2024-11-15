@@ -68,10 +68,14 @@ func main() {
 					fmt.Printf(" %01d: %#x - %08b\n", i, b, b)
 				}
 
-				buf := bytes.NewReader(payload)
-				frameType, _ := buf.ReadByte()
-				commandID, _ := buf.ReadByte()
-				sequence, _ := buf.ReadByte()
+				buf := NewDataView(payload)
+				frameType, _ := buf.GetUint8(0, true) // 0
+				commandID, _ := buf.GetUint8(1, true) // 1
+				sequence, _ := buf.GetUint8(2, true)  // 2
+
+				status, _ := buf.GetUint8(5, true) // 5
+
+				log.Printf("FrameType: %d, CommandID: %d, Sequence: %d, Status: %d\n", frameType, commandID, sequence, status)
 
 				// frame, err := ParseFrame(payload)
 				// if err != nil {
@@ -88,6 +92,40 @@ func main() {
 			}
 		}
 	}
+}
+
+type DataView struct {
+	buffer *bytes.Reader
+}
+
+func NewDataView(data []byte) *DataView {
+	return &DataView{buffer: bytes.NewReader(data)}
+}
+
+func (dv *DataView) GetUint16(offset int, littleEndian bool) (uint16, error) {
+	dv.buffer.Seek(int64(offset), 0) // Seek to offset
+	var value uint16
+	var order binary.ByteOrder
+	if littleEndian {
+		order = binary.LittleEndian
+	} else {
+		order = binary.BigEndian
+	}
+	err := binary.Read(dv.buffer, order, &value)
+	return value, err
+}
+
+func (dv *DataView) GetUint8(offset int, littleEndian bool) (uint8, error) {
+	dv.buffer.Seek(int64(offset), 0) // Seek to offset
+	var value uint8
+	var order binary.ByteOrder
+	if littleEndian {
+		order = binary.LittleEndian
+	} else {
+		order = binary.BigEndian
+	}
+	err := binary.Read(dv.buffer, order, &value)
+	return value, err
 }
 
 // FrameHeader represents the structure of a deCONZ frame header.
