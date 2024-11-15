@@ -67,6 +67,8 @@ func main() {
 				// 	fmt.Printf(" %01d: %#x - %08b\n", i, b, b)
 				// }
 
+				payload = []byte{0x0A, 0x00, 0x01, 0x02, 0x03, 0xAA, 0xBB, 0xCC}
+
 				frame, err := ParseFrame(payload)
 				if err != nil {
 					fmt.Println("Error parsing frame:", err)
