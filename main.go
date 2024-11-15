@@ -128,8 +128,8 @@ func main() {
 	log.Printf("Reading from serial port...")
 	for {
 		scanner := bufio.NewScanner(port)
-		if scanner.Scan() {
-			fmt.Println(scanner.Bytes()) // Println will add back the final '\n'
+		for scanner.Scan() {
+			fmt.Println("Raw Data:", scanner.Bytes()) // Println will add back the final '\n'
 		}
 		if err := scanner.Err(); err != nil {
 			log.Fatal(err)
