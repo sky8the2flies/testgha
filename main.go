@@ -28,6 +28,7 @@ func main() {
 
 	// Buffer for reading data
 	readBuffer := make([]byte, 128)
+	// messageBuffer := []byte{}
 
 	fmt.Println("Reading from serial port...")
 	for {
@@ -136,7 +137,7 @@ func ParseFrameHeader(data []byte) (FrameHeader, error) {
 
 	reader := bytes.NewReader(data)
 	var header FrameHeader
-	if err := binary.Read(reader, binary.BigEndian, &header.Length); err != nil {
+	if err := binary.Read(reader, binary.LittleEndian, &header.Length); err != nil {
 		return FrameHeader{}, err
 	}
 
