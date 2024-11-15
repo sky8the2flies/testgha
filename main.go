@@ -115,7 +115,7 @@ func ParseFrameHeader(frame []byte) (FrameHeader, error) {
 	header.CommandID, _ = reader.ReadByte()
 	header.Sequence, _ = reader.ReadByte()
 
-	fmt.Printf("Parsed Header: Length=%d, FrameType=%d, CommandID=%d, Sequence=%d\n",
+	fmt.Printf("Parsed Header: Length=%d, FrameType=%#X, CommandID=%#X, Sequence=%#X\n",
 		header.Length, header.FrameType, header.CommandID, header.Sequence)
 
 	return header, nil
@@ -123,7 +123,7 @@ func ParseFrameHeader(frame []byte) (FrameHeader, error) {
 
 // ParseFrame parses the entire deCONZ frame.
 func ParseFrame(data []byte) (*Frame, error) {
-	if len(data) < 5 {
+	if len(data) < 3 {
 		return nil, errors.New("data too short for frame")
 	}
 
