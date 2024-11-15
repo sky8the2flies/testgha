@@ -126,11 +126,13 @@ func main() {
 	defer port.Close()
 
 	scanner := bufio.NewScanner(port)
-	for scanner.Scan() {
-		fmt.Println(scanner.Text()) // Println will add back the final '\n'
-	}
-	if err := scanner.Err(); err != nil {
-		log.Fatal(err)
+	for {
+		for scanner.Scan() {
+			fmt.Println(scanner.Text()) // Println will add back the final '\n'
+		}
+		if err := scanner.Err(); err != nil {
+			log.Fatal(err)
+		}
 	}
 
 	// // Buffer for reading data
