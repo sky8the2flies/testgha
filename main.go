@@ -186,7 +186,10 @@ func parseZigbeeMessage(data []byte) {
 	fmt.Printf("  Start Byte: 0x%02X\n", startByte)
 	fmt.Printf("  Message Type: 0x%02X\n", messageType)
 	fmt.Printf("  Device ID: 0x%02X\n", deviceID)
-	fmt.Printf("  Payload: %v\n", payload)
+	fmt.Print("  Payload:\n")
+	for i, b := range payload {
+		fmt.Printf("    Byte %d: 0x%02X\n", i, b)
+	}
 	fmt.Printf("  End Byte: 0x%02X\n\n", endByte)
 }
 
