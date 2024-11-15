@@ -143,6 +143,8 @@ func ParseFrameHeader(frame []byte) (FrameHeader, error) {
 		return FrameHeader{}, err
 	}
 
+	log.Print("made it here")
+
 	header.FrameType, _ = reader.ReadByte()
 	header.CommandID, _ = reader.ReadByte()
 	header.Sequence, _ = reader.ReadByte()
