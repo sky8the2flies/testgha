@@ -119,7 +119,7 @@ func parseZigbeeMessage(data []byte) {
 
 // FrameHeader represents the structure of a deCONZ frame header.
 type FrameHeader struct {
-	Length    uint8
+	Length    uint16
 	FrameType byte
 	CommandID byte
 	Sequence  byte
@@ -143,8 +143,6 @@ func ParseFrameHeader(frame []byte) (FrameHeader, error) {
 		return FrameHeader{}, err
 	}
 
-	log.Print("made it here")
-
 	header.FrameType, _ = reader.ReadByte()
 	header.CommandID, _ = reader.ReadByte()
 	header.Sequence, _ = reader.ReadByte()
@@ -162,6 +160,8 @@ func ParseFrame(data []byte) (*Frame, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	log.Printf("Parsed Frame Header: %+v\n", header)
 
 	if len(data) < int(header.Length) {
 		return nil, errors.New("data length mismatch")
