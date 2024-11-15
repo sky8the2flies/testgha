@@ -69,13 +69,14 @@ func main() {
 				}
 
 				buf := NewDataView(payload)
-				frameType, _ := buf.GetUint8(0, true) // 0
-				commandID, _ := buf.GetUint8(1, true) // 1
-				sequence, _ := buf.GetUint8(2, true)  // 2
+				frameType, _ := buf.GetUint8(0, true)
+				commandID, _ := buf.GetUint8(1, true)
+				sequence, _ := buf.GetUint8(2, true)
 
-				status, _ := buf.GetUint8(5, true) // 5
+				status, _ := buf.GetUint8(5, true)
+				param, _ := buf.GetUint8(7, true)
 
-				log.Printf("FrameType: %#X, CommandID: %#X, Sequence: %#X, Status: %#X\n", frameType, commandID, sequence, status)
+				log.Printf("FrameType: %#X, CommandID: %#X, Sequence: %#X, Status: %#X, Param %#X\n", frameType, commandID, sequence, status, param)
 
 				// frame, err := ParseFrame(payload)
 				// if err != nil {
