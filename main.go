@@ -140,12 +140,15 @@ func ParseFrameHeader(frame []byte) (FrameHeader, error) {
 	reader := bytes.NewReader(frame)
 	var header FrameHeader
 	if err := binary.Read(reader, binary.LittleEndian, &header.Length); err != nil {
-		return FrameHeader{}, err
+		return FrameHeader{}, fmt.Errorf("failed to read length: %w", err)
 	}
 
 	header.FrameType, _ = reader.ReadByte()
 	header.CommandID, _ = reader.ReadByte()
 	header.Sequence, _ = reader.ReadByte()
+
+	fmt.Printf("Parsed Header: Length=%d, FrameType=%d, CommandID=%d, Sequence=%d\n",
+		header.Length, header.FrameType, header.CommandID, header.Sequence)
 
 	return header, nil
 }
@@ -161,9 +164,9 @@ func ParseFrame(data []byte) (*Frame, error) {
 		return nil, err
 	}
 
-	log.Printf("Parsed Frame Header: %+v\n", header)
+	fmt.Printf("Data Length=%d, Expected Length=%d\n", len(data), header.Length)
 
-	if len(data) <= int(header.Length) {
+	if len(data) < int(header.Length) {
 		return nil, errors.New("data length mismatch")
 	}
 
