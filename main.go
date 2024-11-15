@@ -160,9 +160,12 @@ func main() {
 				// Extract the complete message
 				payload := messageBuffer[startIndex : endIndex+1]
 
-				fmt.Println("Raw Data:", payload)
+				fmt.Print("Raw Data:")
+				for i, b := range payload {
+					fmt.Printf("    Byte %d: 0x%02X", i, b)
+				}
 
-				parseZigbeeMessage(payload)
+				// parseZigbeeMessage(payload)
 
 				// Remove the processed message from the buffer
 				messageBuffer = messageBuffer[endIndex+1:]
@@ -188,7 +191,7 @@ func parseZigbeeMessage(data []byte) {
 	fmt.Printf("  Device ID: 0x%02X\n", deviceID)
 	fmt.Print("  Payload:\n")
 	for i, b := range payload {
-		fmt.Printf("    Byte %d: 0x%02X\n", i, b)
+		fmt.Printf("    Byte %d: 0x%02X", i, b)
 	}
 	fmt.Printf("  End Byte: 0x%02X\n\n", endByte)
 }
