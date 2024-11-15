@@ -75,7 +75,7 @@ func main() {
 
 				status, _ := buf.GetUint8(5, true) // 5
 
-				log.Printf("FrameType: %d, CommandID: %d, Sequence: %d, Status: %d\n", frameType, commandID, sequence, status)
+				log.Printf("FrameType: %#X, CommandID: %#X, Sequence: %#X, Status: %#X\n", frameType, commandID, sequence, status)
 
 				// frame, err := ParseFrame(payload)
 				// if err != nil {
