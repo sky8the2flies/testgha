@@ -39,6 +39,7 @@ func main() {
 		}
 
 		if n > 0 {
+			log.Printf("Read %d bytes: %X\n", n, readBuffer[:n])
 			frame, err := ParseFrame(readBuffer[:n])
 			if err != nil {
 				fmt.Println("Error parsing frame:", err)
