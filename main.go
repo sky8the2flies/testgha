@@ -132,7 +132,7 @@ func main() {
 	for {
 		n, err := port.Read(readBuffer)
 		if err != nil {
-			log.Printf("Error reading from serial port: %v", err)
+			// log.Printf("Error reading from serial port: %v", err)
 			continue
 		}
 
