@@ -31,6 +31,7 @@ func main() {
 	// messageBuffer := []byte{}
 
 	fmt.Println("Reading from serial port...")
+
 	for {
 		n, err := port.Read(readBuffer)
 		if err != nil {
@@ -118,7 +119,7 @@ func parseZigbeeMessage(data []byte) {
 
 // FrameHeader represents the structure of a deCONZ frame header.
 type FrameHeader struct {
-	Length    uint16
+	Length    uint8
 	FrameType byte
 	CommandID byte
 	Sequence  byte
