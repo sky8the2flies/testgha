@@ -102,6 +102,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"log"
 	"time"
@@ -124,51 +125,59 @@ func main() {
 	}
 	defer port.Close()
 
-	// Buffer for reading data
-	readBuffer := make([]byte, 128)
-	messageBuffer := []byte{}
-
-	fmt.Println("Reading from serial port...")
-	for {
-		n, err := port.Read(readBuffer)
-		if err != nil {
-			log.Printf("Error reading from serial port: %v", err)
-			continue
-		}
-
-		if n > 0 {
-			// Append new data to the message buffer
-			messageBuffer = append(messageBuffer, readBuffer[:n]...)
-
-			// Check for start and end delimiters (192) to identify a complete message
-			startIndex := -1
-			endIndex := -1
-
-			for i, b := range messageBuffer {
-				if b == 192 {
-					if startIndex == -1 {
-						startIndex = i
-					} else {
-						endIndex = i
-						break
-					}
-				}
-			}
-
-			// If we found a complete message (from start to end delimiter)
-			if startIndex != -1 && endIndex != -1 && endIndex > startIndex {
-				// Extract the complete message
-				payload := messageBuffer[startIndex : endIndex+1]
-
-				fmt.Println("Raw Data:", payload)
-
-				parseZigbeeMessage(payload)
-
-				// Remove the processed message from the buffer
-				messageBuffer = messageBuffer[endIndex+1:]
-			}
-		}
+	scanner := bufio.NewScanner(port)
+	for scanner.Scan() {
+		fmt.Println(scanner.Text()) // Println will add back the final '\n'
 	}
+	if err := scanner.Err(); err != nil {
+		log.Fatal(err)
+	}
+
+	// // Buffer for reading data
+	// readBuffer := make([]byte, 128)
+	// messageBuffer := []byte{}
+
+	// fmt.Println("Reading from serial port...")
+	// for {
+	// 	n, err := port.Read(readBuffer)
+	// 	if err != nil {
+	// 		log.Printf("Error reading from serial port: %v", err)
+	// 		continue
+	// 	}
+
+	// 	if n > 0 {
+	// 		// Append new data to the message buffer
+	// 		messageBuffer = append(messageBuffer, readBuffer[:n]...)
+
+	// 		// Check for start and end delimiters (192) to identify a complete message
+	// 		startIndex := -1
+	// 		endIndex := -1
+
+	// 		for i, b := range messageBuffer {
+	// 			if b == 192 {
+	// 				if startIndex == -1 {
+	// 					startIndex = i
+	// 				} else {
+	// 					endIndex = i
+	// 					break
+	// 				}
+	// 			}
+	// 		}
+
+	// 		// If we found a complete message (from start to end delimiter)
+	// 		if startIndex != -1 && endIndex != -1 && endIndex > startIndex {
+	// 			// Extract the complete message
+	// 			payload := messageBuffer[startIndex : endIndex+1]
+
+	// 			fmt.Println("Raw Data:", payload)
+
+	// 			parseZigbeeMessage(payload)
+
+	// 			// Remove the processed message from the buffer
+	// 			messageBuffer = messageBuffer[endIndex+1:]
+	// 		}
+	// 	}
+	// }
 }
 
 // Parsing function for Zigbee message structure
