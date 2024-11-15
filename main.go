@@ -87,7 +87,7 @@ func main() {
 
 // FrameHeader represents the structure of a deCONZ frame header.
 type FrameHeader struct {
-	Length    uint16
+	Length    uint8
 	FrameType byte
 	CommandID byte
 	Sequence  byte
